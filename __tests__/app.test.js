@@ -31,3 +31,11 @@ describe("GET /api/topics", () => {
   });
 });
 
+describe('GET /api', () => {
+    test('should return an object describing all the available endpoints', () => {
+        const expected = require('../endpoints.json')
+        return request(app).get('/api').expect(200).then(({body: {endpoints}}) => {
+            expect(endpoints).toEqual(expected)
+        })
+    })
+})
