@@ -10,7 +10,6 @@ exports.getTopics = (req, res, next) => {
 
 exports.getEndpoints = (req, res, next) => {
     selectEndpoints().then((endpoints) => {
-        console.log(endpoints)
         res.status(200).send({endpoints})
     }).catch((error) => {
         next(error)
