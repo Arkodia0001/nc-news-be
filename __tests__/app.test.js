@@ -39,3 +39,30 @@ describe('GET /api', () => {
         })
     })
 })
+
+describe('GET /api/articles/:article_id', () => {
+    test('should return the given article as specified by the given ID', () => {
+        const articles = require('../db/data/test-data/articles')
+        return request(app).get('/api/articles/1').expect(200).then(({body: {article}}) => {
+            expect(article.length).toBe(1)
+            expect(article[0].article_id).toBe(1)
+            expect(article[0].title).toEqual(articles[0].title)
+            expect(article[0].topic).toEqual(articles[0].topic)
+            expect(article[0].author).toEqual(articles[0].author)
+            expect(article[0].body).toEqual(articles[0].body)
+            expect(article[0]).toHaveProperty('created_at')
+            expect(article[0].votes).toEqual(articles[0].votes)
+            expect(article[0].article_img_url).toEqual(articles[0].article_img_url)
+        })
+    })
+    test('should return 404 not found if given an invalid ID number', () => {
+        return request(app).get('/api/articles/999999').expect(404).then(({body: {msg}}) => {
+            expect(msg).toBe('Not Found')
+        })
+    })
+    test('should return 400 bad request if given an invalid request', () => {
+        return request(app).get('/api/articles/forklift').expect(400).then(({body: {msg}}) => {
+            expect(msg).toBe('Bad Request')
+        })
+    })
+})
