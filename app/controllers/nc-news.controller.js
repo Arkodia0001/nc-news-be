@@ -1,4 +1,4 @@
-const { selectTopics, selectArticleById, selectArticles } = require("../models/nc-news.model")
+const { selectTopics, selectArticleById, selectArticles, selectCommentsByArticleID } = require("../models/nc-news.model")
 const endpoints = require('../../endpoints.json')
 
 
@@ -26,6 +26,15 @@ exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params
     selectArticleById(article_id).then((article) => {
         res.status(200).send({article})
+    }).catch((error) => {
+        next(error)
+    })
+}
+
+exports.getCommentsByArticleID = (req, res, next) => {
+    const { article_id } = req.params
+    selectCommentsByArticleID(article_id).then((comments) => {
+        res.status(200).send({comments})
     }).catch((error) => {
         next(error)
     })
