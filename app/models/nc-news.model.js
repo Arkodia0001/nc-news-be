@@ -1,6 +1,7 @@
 const db = require('../../db/connection')
 const fs = require('fs/promises');
 const comments = require('../../db/data/test-data/comments');
+const { nextTick } = require('process');
 
 exports.selectTopics = () => {
     return db.query('SELECT * FROM topics')
@@ -32,9 +33,17 @@ exports.selectArticleById = (article_id) => {
 
 exports.selectCommentsByArticleID = (article_id) => {
     return db.query('SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at', [article_id]).then(({rows}) => {
-        if(rows.length === 0){
-            return Promise.reject({status: 404, msg: "Not Found"});
-        }
         return rows
+    })
+}
+
+exports.insertNewComment = ({article_id}, newComment) => {
+    return db.query(`INSERT INTO comments
+    (article_id, author, body)
+    VALUES
+    ($1, $2, $3) RETURNING *`,
+    [article_id, newComment.username, newComment.body])
+    .then(({rows})=>{
+        return rows[0];
     })
 }

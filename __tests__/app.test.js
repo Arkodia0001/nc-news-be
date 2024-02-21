@@ -131,38 +131,113 @@ describe("GET /api/articles", () => {
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
-    test("returns an array of comments for the given article_id", () => {
-        return request(app).get('/api/articles/1/comments').expect(200).then(({body: {comments}}) => {
-            expect(comments.length).toBe(11)
-        })
-    })
-    test("comments should be formatted correctly", () => {
-        return request(app).get('/api/articles/1/comments').expect(200).then(({body: {comments}}) => {
-            comments.forEach((comment) => {
-                expect(comment).toMatchObject({
-                    comment_id: expect.any(Number),
-                    votes: expect.any(Number),
-                    created_at: expect.any(String),
-                    author: expect.any(String),
-                    body: expect.any(String),
-                    article_id: expect.any(Number),
-                })
-            })
-        })
-    })
-    test("comments should be arranged most recent comments first", () => {
-        return request(app).get('/api/articles/1/comments').expect(200).then(({body: {comments}}) => {
-            expect(comments).toBeSortedBy('created_at', { descending: false })
-        })
-    })
-    test("should return error 404 not found when given an invalid article ID", () => {
-        return request(app).get('/api/articles/99999/comments').expect(404).then(({body: {msg}}) => {
-            expect(msg).toEqual('Not Found')
-        })
-    })
-    test("should return error 400 Bad Request when given an invalid article ID data type", () => {
-        return request(app).get('/api/articles/forklift/comments').expect(400).then(({body: {msg}}) => {
-            expect(msg).toEqual('Bad Request')
-        })
-    })
-})
+  test("returns an array of comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(11);
+      });
+  });
+  test("comments should be formatted correctly", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: expect.any(Number),
+          });
+          expect(comment.article_id).toBe(1);
+        });
+      });
+  });
+  test("comments should be arranged most recent comments first", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeSortedBy("created_at", { descending: false });
+      });
+  });
+  test("should return 200 code and an empty array when there is an article present with no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toEqual([]);
+      });
+  });
+  test("should return error 400 Bad Request when given an invalid article ID", () => {
+    return request(app)
+      .get("/api/articles/forklift/comments")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toEqual("Bad Request");
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("should post new comment to given article", () => {
+    const newComment = {
+      username: "lurker",
+      body: "Test Comment",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+          expect(comment.author).toBe("lurker"),
+          expect(comment.body).toBe("Test Comment"),
+          expect(comment).toHaveProperty("created_at"),
+          expect(comment.votes).toBe(0),
+          expect(typeof comment.comment_id).toBe("number"),
+          expect(comment.article_id).toBe(1);
+      });
+  });
+  test("should give 400 bad request error when not given enough information", () => {
+    const badComment = {
+      username: "username",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(badComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should give 400 bad request error when given incorrect data types", () => {
+    const badComment = {
+      username: 123823,
+      body: 120874
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(badComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should give 404 when article doesnt exist", () => {
+    const newComment = {
+      username: "lurker",
+      body: "Test Comment",
+    };
+    return request(app)
+      .post("/api/articles/3242/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
