@@ -181,6 +181,14 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(msg).toEqual("Bad Request");
       });
   });
+  test("should return a 404 not found when given a valid but non-existant article_id", () => {
+    return request(app)
+      .get("/api/articles/99999/comments")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toEqual("Not Found");
+      });
+  });
 });
 
 describe("POST /api/articles/:article_id/comments", () => {
@@ -194,7 +202,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(201)
       .then(({ body: { comment } }) => {
-          expect(comment.author).toBe("lurker"),
+        expect(comment.author).toBe("lurker"),
           expect(comment.body).toBe("Test Comment"),
           expect(comment).toHaveProperty("created_at"),
           expect(comment.votes).toBe(0),
@@ -202,9 +210,42 @@ describe("POST /api/articles/:article_id/comments", () => {
           expect(comment.article_id).toBe(1);
       });
   });
+  test("should ignore any unnecessary properties on the request body", () => {
+    const newComment = {
+      username: "lurker",
+      body: "Test Comment",
+      randomProperty: "This should defo be ignored..",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment.author).toBe("lurker"),
+          expect(comment.body).toBe("Test Comment"),
+          expect(comment).toHaveProperty("created_at"),
+          expect(comment.votes).toBe(0),
+          expect(typeof comment.comment_id).toBe("number"),
+          expect(comment.article_id).toBe(1);
+        expect(comment).not.toHaveProperty("randomProperty");
+      });
+  });
+  test("should give 400 bad request error when given an incorrect username", () => {
+    const badComment = {
+      username: "ForkliftMasta",
+      body: "Test Comment",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(badComment)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
+      });
+  });
   test("should give 400 bad request error when not given enough information", () => {
     const badComment = {
-      username: "username",
+      username: "lurker",
     };
     return request(app)
       .post("/api/articles/1/comments")
@@ -216,8 +257,8 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
   test("should give 400 bad request error when given incorrect data types", () => {
     const badComment = {
-      username: 123823,
-      body: 120874
+      username: "lurker",
+      body: 120874,
     };
     return request(app)
       .post("/api/articles/1/comments")
@@ -235,6 +276,70 @@ describe("POST /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/3242/comments")
       .send(newComment)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("should return 201 code and update an article with only the information sent to be updated", () => {
+    const patchInfo = { inc_votes: 100 };
+    const article_1 = {
+      article_id: 1,
+      title: "Living in the shadow of a great man",
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "I find this existence challenging",
+      created_at: "2020-07-09T20:11:00.000Z",
+      votes: 200,
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(patchInfo)
+      .expect(201)
+      .then(({ body: { patchedArticle } }) => {
+        expect(patchedArticle).toEqual(article_1);
+      });
+  });
+  test("should give 400 bad request error when patchInfo includes something other than updating votes", () => {
+    const patchInfo = { topic: "cats" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(patchInfo)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should give 400 bad request error when patchInfo includes votes, but the data type is incorrect", () => {
+    const patchInfo = { inc_votes: "i love forklifts me" };
+    return request(app)
+    .patch("/api/articles/1")
+    .send(patchInfo)
+    .expect(400)
+    .then(({ body: { msg } }) => {
+      expect(msg).toBe("Bad Request");
+    });
+});
+  test("should give 404 not found when given an invalid article_id", () => {
+    const patchInfo = { inc_votes: 100 };
+    return request(app)
+      .patch("/api/articles/99999")
+      .send(patchInfo)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Article Not Found");
+      });
+  });
+  test("should give 400 bad request when given a valid, but non-existant article_id", () => {
+    const patchInfo = { inc_votes: 100 };
+    return request(app)
+      .patch("/api/articles/forklift")
+      .send(patchInfo)
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
