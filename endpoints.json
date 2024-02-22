@@ -46,6 +46,7 @@
   },
   "POST /api/articles/:article_id/comments": {
     "description": "posts a comment to the given article_id",
+    "queries": [],
     "exampleResponse": {
       "comment_id": 19,
       "body": "Test Comment",
@@ -57,6 +58,7 @@
   },
   "PATCH /api/articles/:article_id": {
     "description": "updates the number of votes on a given article",
+    "queries": [],
     "exampleResponse": {
       "pre-patch": {
         "article_id": 1,
@@ -79,5 +81,10 @@
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
     }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes the given comment",
+    "queries": [],
+    "exampleResponse": []
   }
 }
