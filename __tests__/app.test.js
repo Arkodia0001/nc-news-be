@@ -284,7 +284,7 @@ describe("POST /api/articles/:article_id/comments", () => {
 });
 
 describe("PATCH /api/articles/:article_id", () => {
-  test("should return 201 code and update an article with only the information sent to be updated", () => {
+  test("should return 200 code and update an article with only the information sent to be updated", () => {
     const patchInfo = { inc_votes: 100 };
     const article_1 = {
       article_id: 1,
@@ -300,12 +300,12 @@ describe("PATCH /api/articles/:article_id", () => {
     return request(app)
       .patch("/api/articles/1")
       .send(patchInfo)
-      .expect(201)
+      .expect(200)
       .then(({ body: { patchedArticle } }) => {
         expect(patchedArticle).toEqual(article_1);
       });
   });
-  test("should return 201 code and update an article with minus inputs", () => {
+  test("should return 200 code and update an article with minus inputs", () => {
     const patchInfo = { inc_votes: -50 };
     const article_1 = {
       article_id: 1,
@@ -321,7 +321,7 @@ describe("PATCH /api/articles/:article_id", () => {
     return request(app)
       .patch("/api/articles/1")
       .send(patchInfo)
-      .expect(201)
+      .expect(200)
       .then(({ body: { patchedArticle } }) => {
         expect(patchedArticle).toEqual(article_1);
       });
@@ -339,13 +339,13 @@ describe("PATCH /api/articles/:article_id", () => {
   test("should give 400 bad request error when patchInfo includes votes, but the data type is incorrect", () => {
     const patchInfo = { inc_votes: "i love forklifts me" };
     return request(app)
-    .patch("/api/articles/1")
-    .send(patchInfo)
-    .expect(400)
-    .then(({ body: { msg } }) => {
-      expect(msg).toBe("Bad Request");
-    });
-});
+      .patch("/api/articles/1")
+      .send(patchInfo)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
   test("should give 404 not found when given an invalid article_id", () => {
     const patchInfo = { inc_votes: 100 };
     return request(app)
@@ -369,17 +369,48 @@ describe("PATCH /api/articles/:article_id", () => {
 });
 
 describe("DELETE /api/comments/:comment_id", () => {
-    test("should respond with 204 code and delete the given comment", () => {
-        return request(app).delete('/api/comments/1').expect(204)
-    })
-    test("should return error 404 if the given comment ID does not exist", () => {
-      return request(app).delete('/api/comments/986712').expect(404).then(({body: {msg}}) => {
-        expect(msg).toBe('Comment does not exist!')
-      })
-    })
-    test("should return 400 bad request if given an invalid comment id", () => {
-        return request(app).delete('/api/comments/forklift').expect(400).then(({body: {msg}}) => {
-            expect(msg).toBe('Bad Request')
-        })
-    })
-})
+  test("should respond with 204 code and delete the given comment", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+  test("should return error 404 if the given comment ID does not exist", () => {
+    return request(app)
+      .delete("/api/comments/986712")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Comment does not exist!");
+      });
+  });
+  test("should return 400 bad request if given an invalid comment id", () => {
+    return request(app)
+      .delete("/api/comments/forklift")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("GET /api/users", () => {
+  test("should respond with 200 code and an array containing all the user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(users.length).toBe(4);
+      });
+  });
+  test("each user object should be formatted correctly with the required properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
+      });
+  });
+});

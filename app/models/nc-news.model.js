@@ -1,7 +1,6 @@
 const db = require("../../db/connection");
 const fs = require("fs/promises");
-const comments = require("../../db/data/test-data/comments");
-const users = require("../../db/data/test-data/users");
+const usersArray = require("../../db/data/test-data/users");
 
 exports.selectTopics = () => {
   return db.query("SELECT * FROM topics").then(({ rows }) => {
@@ -45,7 +44,7 @@ exports.selectCommentsByArticleID = (article_id) => {
 };
 
 exports.insertNewComment = ({ article_id }, newComment) => {
-  const usernames = users.map((user) => {
+  const usernames = usersArray.map((user) => {
     return user.username;
   });
   if (typeof newComment.body !== "string") {
@@ -94,9 +93,17 @@ exports.updateArticleByID = (update, article_id) => {
 };
 
 exports.deleteCommentByID = (comment_id) => {
-    return db.query('DELETE FROM comments WHERE comment_id = $1', [comment_id]).then(({rowCount}) => {
-        if(rowCount === 0){
-            return Promise.reject({status: 404, msg: 'Comment does not exist!'})
-        }
-    })
-}
+  return db
+    .query("DELETE FROM comments WHERE comment_id = $1", [comment_id])
+    .then(({ rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "Comment does not exist!" });
+      }
+    });
+};
+
+exports.selectUsers = () => {
+    return db.query(`SELECT * FROM users`).then(({rows}) => {
+        return rows
+    });
+};
