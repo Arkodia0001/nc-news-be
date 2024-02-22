@@ -6,6 +6,7 @@ const {
   insertNewComment,
   updateArticleByID,
   deleteCommentByID,
+  selectUsers,
 } = require("../models/nc-news.model");
 const endpoints = require("../../endpoints.json");
 
@@ -47,11 +48,15 @@ exports.getArticleById = (req, res, next) => {
 exports.getCommentsByArticleID = (req, res, next) => {
   const { article_id } = req.params;
   selectArticleById(article_id)
-    .then(() => { return selectCommentsByArticleID(article_id)})
-    .then((comments) => {res.status(200).send({ comments })})
+    .then(() => {
+      return selectCommentsByArticleID(article_id);
+    })
+    .then((comments) => {
+      res.status(200).send({ comments });
+    })
     .catch((error) => {
       next(error);
-    })
+    });
 };
 
 exports.postCommentByArticleID = (req, res, next) => {
@@ -71,7 +76,7 @@ exports.patchArticle = (req, res, next) => {
   const { article_id } = req.params;
   updateArticleByID(update, article_id)
     .then((patchedArticle) => {
-      res.status(201).send({ patchedArticle });
+      res.status(200).send({ patchedArticle });
     })
     .catch((error) => {
       next(error);
@@ -79,9 +84,19 @@ exports.patchArticle = (req, res, next) => {
 };
 
 exports.sendDeleteRequest = (req, res, next) => {
-    const {comment_id} = req.params
-    deleteCommentByID(comment_id).then(() => {
-        res.sendStatus(204)
+  const { comment_id } = req.params;
+  deleteCommentByID(comment_id)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.getUsers = (req, res, next) => {
+    selectUsers().then((users) => {
+        res.status(200).send({users})
     }).catch((error) => {
         next(error)
     })
