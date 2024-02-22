@@ -1,5 +1,5 @@
 const express = require("express");
-const { getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleID, postCommentByArticleID, patchArticle } = require("./controllers/nc-news.controller");
+const { getTopics, getEndpoints, getArticleById, getArticles, getCommentsByArticleID, postCommentByArticleID, patchArticle, sendDeleteRequest } = require("./controllers/nc-news.controller");
 const { pathNotFound, customError, badRequestError } = require("./errorHandling");
 const app = express();
 
@@ -9,11 +9,10 @@ app.get('/api/topics', getTopics);
 app.get('/api', getEndpoints)
 app.get('/api/articles/:article_id', getArticleById)
 app.get('/api/articles', getArticles)
-
 app.get('/api/articles/:article_id/comments', getCommentsByArticleID)
-
 app.post('/api/articles/:article_id/comments', postCommentByArticleID)
 app.patch('/api/articles/:article_id', patchArticle)
+app.delete('/api/comments/:comment_id', sendDeleteRequest)
 
 app.use((error, req, res, next) => {
     if(error.msg && error.status){

@@ -5,6 +5,7 @@ const {
   selectCommentsByArticleID,
   insertNewComment,
   updateArticleByID,
+  deleteCommentByID,
 } = require("../models/nc-news.model");
 const endpoints = require("../../endpoints.json");
 
@@ -76,3 +77,12 @@ exports.patchArticle = (req, res, next) => {
       next(error);
     });
 };
+
+exports.sendDeleteRequest = (req, res, next) => {
+    const {comment_id} = req.params
+    deleteCommentByID(comment_id).then(() => {
+        res.sendStatus(204)
+    }).catch((error) => {
+        next(error)
+    })
+}

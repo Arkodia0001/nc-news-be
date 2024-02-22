@@ -305,6 +305,27 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(patchedArticle).toEqual(article_1);
       });
   });
+  test("should return 201 code and update an article with minus inputs", () => {
+    const patchInfo = { inc_votes: -50 };
+    const article_1 = {
+      article_id: 1,
+      title: "Living in the shadow of a great man",
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "I find this existence challenging",
+      created_at: "2020-07-09T20:11:00.000Z",
+      votes: 50,
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(patchInfo)
+      .expect(201)
+      .then(({ body: { patchedArticle } }) => {
+        expect(patchedArticle).toEqual(article_1);
+      });
+  });
   test("should give 400 bad request error when patchInfo includes something other than updating votes", () => {
     const patchInfo = { topic: "cats" };
     return request(app)
@@ -346,3 +367,19 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+    test("should respond with 204 code and delete the given comment", () => {
+        return request(app).delete('/api/comments/1').expect(204)
+    })
+    test("should return error 404 if the given comment ID does not exist", () => {
+      return request(app).delete('/api/comments/986712').expect(404).then(({body: {msg}}) => {
+        expect(msg).toBe('Comment does not exist!')
+      })
+    })
+    test("should return 400 bad request if given an invalid comment id", () => {
+        return request(app).delete('/api/comments/forklift').expect(400).then(({body: {msg}}) => {
+            expect(msg).toBe('Bad Request')
+        })
+    })
+})
