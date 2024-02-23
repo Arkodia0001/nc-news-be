@@ -1,7 +1,8 @@
 const db = require("../../db/connection");
 const fs = require("fs/promises");
 const usersArray = require("../../db/data/test-data/users");
-const { string } = require("pg-format");
+const topicsArray = require("../../db/data/test-data/topics");
+
 
 exports.selectTopics = () => {
   return db.query("SELECT * FROM topics").then(({ rows }) => {
@@ -10,7 +11,9 @@ exports.selectTopics = () => {
 };
 
 exports.selectArticles = (topic) => {
-  const validTopics = ["cats", "mitch", "paper"];
+  const validTopics = topicsArray.map((topic) => {
+      return topic.slug
+  })
   if (topic !== undefined && !validTopics.includes(topic)) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
@@ -29,16 +32,28 @@ exports.selectArticles = (topic) => {
   ORDER BY articles.created_at DESC;`;
 
   return db.query(stringQuery, queryValues).then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({ status: 404, msg: "Not Found" });
-    }
     return rows;
   });
 };
 
 exports.selectArticleById = (article_id) => {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+    .query(`
+    SELECT 
+        articles.author, 
+        articles.title, 
+        articles.article_id, 
+        articles.topic, 
+        articles.body,
+        articles.created_at, 
+        articles.votes, 
+        articles.article_img_url, 
+        COUNT(comments.body)::INT AS comment_count
+    FROM articles
+    LEFT JOIN comments 
+    ON articles.article_id = comments.article_id 
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id` , [article_id])
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Not Found" });
