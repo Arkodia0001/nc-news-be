@@ -46,6 +46,45 @@ describe("GET /api", () => {
   });
 });
 
+describe("GET /api/articles", () => {
+  test("should return an array containing all the article objects", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(13);
+      });
+  });
+  test("each article object should be formatted correctly with the required properties", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        articles.forEach((article) => {
+          expect(article).not.toHaveProperty("body");
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("returned objects should be sorted by date descending", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});
+
 describe("GET /api/articles/:article_id", () => {
   test("should return the given article as specified by the given ID", () => {
     return request(app)
@@ -87,45 +126,6 @@ describe("GET /api/articles/:article_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Bad Request");
-      });
-  });
-});
-
-describe("GET /api/articles", () => {
-  test("should return an array containing all the article objects", () => {
-    return request(app)
-      .get("/api/articles")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(articles.length).toBe(13);
-      });
-  });
-  test("each article object should be formatted correctly with the required properties", () => {
-    return request(app)
-      .get("/api/articles")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        articles.forEach((article) => {
-          expect(article).not.toHaveProperty("body");
-          expect(article).toMatchObject({
-            article_id: expect.any(Number),
-            title: expect.any(String),
-            topic: expect.any(String),
-            author: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            article_img_url: expect.any(String),
-            comment_count: expect.any(Number),
-          });
-        });
-      });
-  });
-  test("returned objects should be sorted by date descending", () => {
-    return request(app)
-      .get("/api/articles")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
 });
@@ -415,15 +415,24 @@ describe("GET /api/articles (topic query)", () => {
             })
         })
     })
+    test("should return an empty array when given a valid topic with no results", () => {
+        return request(app).get('/api/articles?topic=paper').expect(200).then(({body: {articles}}) => {
+            expect(articles.length).toBe(0)
+            expect(articles).toEqual([])
+        })
+    })
     test("should return a 400 error when the queried topic is invalid", () => {
         return request(app).get('/api/articles?topic=forklift').expect(400).then(({body: {msg}}) => {
             expect(msg).toBe('Bad Request')
         })
     })
-    test("should return a 404 error when query is fine but returns no results", () => {
-        return request(app).get('/api/articles?topic=paper').expect(404).then(({body: {msg}}) => {
-            expect(msg).toBe('Not Found')
+})
+
+describe("GET /api/articles/:article_id (comment_count)", () => {
+    test("should return the requested article with comment count property", () => {
+        return request(app).get('/api/articles/1').expect(200).then(({body: {article}}) => {
+            expect(article[0]).toHaveProperty('comment_count')
+            expect(article[0].comment_count).toBe(11)
         })
     })
 })
-
