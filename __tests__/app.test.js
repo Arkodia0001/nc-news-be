@@ -346,9 +346,12 @@ describe("PATCH /api/articles/:article_id", () => {
 
 describe("DELETE /api/comments/:comment_id", () => {
   test("should respond with 204 code and delete the given comment", () => {
-    return request(app).delete("/api/comments/1").expect(204).then(({ body: {msg}}) => {
-        expect(msg).toBe(undefined)
-    })
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe(undefined);
+      });
   });
   test("should return error 404 if the given comment ID does not exist", () => {
     return request(app)
@@ -394,32 +397,44 @@ describe("GET /api/users", () => {
 });
 
 describe("GET /api/articles (topic query)", () => {
-    test("should return an array of articles that match the given topic query", () => {
-        return request(app).get('/api/articles?topic=cats').expect(200).then(({body: {articles}}) => {
-            expect(articles.length).toBe(1)
-            articles.forEach((article) => {
-                expect(article.topic).toBe('cats')
-            })
-        })
-    })
-    test("should return an empty array when given a valid topic with no results", () => {
-        return request(app).get('/api/articles?topic=paper').expect(200).then(({body: {articles}}) => {
-            expect(articles.length).toBe(0)
-            expect(articles).toEqual([])
-        })
-    })
-    test("should return a 404 error when the queried topic is invalid", () => {
-        return request(app).get('/api/articles?topic=forklift').expect(404).then(({body: {msg}}) => {
-            expect(msg).toBe('Not Found')
-        })
-    })
-})
+  test("should return an array of articles that match the given topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(1);
+        articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+  test("should return an empty array when given a valid topic with no results", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(0);
+        expect(articles).toEqual([]);
+      });
+  });
+  test("should return a 404 error when the queried topic is invalid", () => {
+    return request(app)
+      .get("/api/articles?topic=forklift")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not Found");
+      });
+  });
+});
 
 describe("GET /api/articles/:article_id (comment_count)", () => {
-    test("should return the requested article with comment count property", () => {
-        return request(app).get('/api/articles/1').expect(200).then(({body: {article}}) => {
-            expect(article[0]).toHaveProperty('comment_count')
-            expect(article[0].comment_count).toBe(11)
-        })
-    })
-})
+  test("should return the requested article with comment count property", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article[0]).toHaveProperty("comment_count");
+        expect(article[0].comment_count).toBe(11);
+      });
+  });
+});
