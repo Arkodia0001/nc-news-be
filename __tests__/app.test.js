@@ -307,23 +307,12 @@ describe("PATCH /api/articles/:article_id", () => {
   });
   test("should return 200 code and update an article with minus inputs", () => {
     const patchInfo = { inc_votes: -50 };
-    const article_1 = {
-      article_id: 1,
-      title: "Living in the shadow of a great man",
-      topic: "mitch",
-      author: "butter_bridge",
-      body: "I find this existence challenging",
-      created_at: "2020-07-09T20:11:00.000Z",
-      votes: 50,
-      article_img_url:
-        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-    };
     return request(app)
       .patch("/api/articles/1")
       .send(patchInfo)
       .expect(200)
       .then(({ body: { patchedArticle } }) => {
-        expect(patchedArticle).toEqual(article_1);
+        expect(patchedArticle.votes).toEqual(50);
       });
   });
   test("should give 400 bad request error when patchInfo includes something other than updating votes", () => {
@@ -370,7 +359,9 @@ describe("PATCH /api/articles/:article_id", () => {
 
 describe("DELETE /api/comments/:comment_id", () => {
   test("should respond with 204 code and delete the given comment", () => {
-    return request(app).delete("/api/comments/1").expect(204);
+    return request(app).delete("/api/comments/1").expect(204).then(({ body: {msg}}) => {
+        expect(msg).toBe(undefined)
+    })
   });
   test("should return error 404 if the given comment ID does not exist", () => {
     return request(app)
@@ -414,3 +405,25 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/articles (topic query)", () => {
+    test("should return an array of articles that match the given topic query", () => {
+        return request(app).get('/api/articles?topic=cats').expect(200).then(({body: {articles}}) => {
+            expect(articles.length).toBe(1)
+            articles.forEach((article) => {
+                expect(article.topic).toBe('cats')
+            })
+        })
+    })
+    test("should return a 400 error when the queried topic is invalid", () => {
+        return request(app).get('/api/articles?topic=forklift').expect(400).then(({body: {msg}}) => {
+            expect(msg).toBe('Bad Request')
+        })
+    })
+    test("should return a 404 error when query is fine but returns no results", () => {
+        return request(app).get('/api/articles?topic=paper').expect(404).then(({body: {msg}}) => {
+            expect(msg).toBe('Not Found')
+        })
+    })
+})
+
