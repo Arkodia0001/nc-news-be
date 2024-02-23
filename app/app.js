@@ -30,24 +30,11 @@ app.patch("/api/articles/:article_id", patchArticle);
 app.delete("/api/comments/:comment_id", sendDeleteRequest);
 app.get("/api/users", getUsers)
 
-
-app.use((error, req, res, next) => {
-  if (error.msg && error.status) {
-    res.status(error.status).send({ msg: error.msg });
-  } else if (
-    error.code === "22P02" ||
-    error.code === "23502" ||
-    error.code === "23503"
-  ) {
-    res.status(400).send({ msg: "Bad Request" });
-  } else {
-    console.log(error);
-    res.status(500).send({ error });
-  }
-});
-
 app.all("/*", pathNotFound);
 app.use(customError);
 app.use(badRequestError);
+app.use((error, req, res, next) => {
+    res.status(500).send({ error });
+});
 
 module.exports = app;

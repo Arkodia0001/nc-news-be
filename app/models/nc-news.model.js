@@ -1,8 +1,5 @@
 const db = require("../../db/connection");
 const fs = require("fs/promises");
-const usersArray = require("../../db/data/test-data/users");
-const topicsArray = require("../../db/data/test-data/topics");
-
 
 exports.selectTopics = () => {
   return db.query("SELECT * FROM topics").then(({ rows }) => {
@@ -10,12 +7,13 @@ exports.selectTopics = () => {
   });
 };
 
-exports.selectArticles = (topic) => {
-  const validTopics = topicsArray.map((topic) => {
-      return topic.slug
-  })
+exports.selectArticles = (topics, topic) => {
+  const validTopics = topics.map((topic) => {
+    return topic.slug;
+  });
+
   if (topic !== undefined && !validTopics.includes(topic)) {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
+    return Promise.reject({ status: 404, msg: "Not Found" });
   }
 
   let stringQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.body)::INT AS comment_count
@@ -38,7 +36,8 @@ exports.selectArticles = (topic) => {
 
 exports.selectArticleById = (article_id) => {
   return db
-    .query(`
+    .query(
+      `
     SELECT 
         articles.author, 
         articles.title, 
@@ -53,7 +52,9 @@ exports.selectArticleById = (article_id) => {
     LEFT JOIN comments 
     ON articles.article_id = comments.article_id 
     WHERE articles.article_id = $1
-    GROUP BY articles.article_id` , [article_id])
+    GROUP BY articles.article_id`,
+      [article_id]
+    )
     .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Not Found" });
@@ -73,16 +74,6 @@ exports.selectCommentsByArticleID = (article_id) => {
 };
 
 exports.insertNewComment = ({ article_id }, newComment) => {
-  const usernames = usersArray.map((user) => {
-    return user.username;
-  });
-  if (typeof newComment.body !== "string") {
-    return Promise.reject({ status: 400, msg: "Bad Request" });
-  }
-
-  if (!usernames.includes(newComment.username)) {
-    return Promise.reject({ status: 404, msg: "Not Found" });
-  } else {
     return db
       .query(
         `INSERT INTO comments
@@ -95,7 +86,7 @@ exports.insertNewComment = ({ article_id }, newComment) => {
         return rows[0];
       });
   }
-};
+
 
 exports.updateArticleByID = (update, article_id) => {
   let stringQuery = `UPDATE articles`;

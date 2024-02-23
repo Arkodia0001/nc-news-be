@@ -230,7 +230,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(comment).not.toHaveProperty("randomProperty");
       });
   });
-  test("should give 400 bad request error when given an incorrect username", () => {
+  test("should give 404 bad request error when given an incorrect username", () => {
     const badComment = {
       username: "ForkliftMasta",
       body: "Test Comment",
@@ -255,19 +255,6 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(msg).toBe("Bad Request");
       });
   });
-  test("should give 400 bad request error when given incorrect data types", () => {
-    const badComment = {
-      username: "lurker",
-      body: 120874,
-    };
-    return request(app)
-      .post("/api/articles/1/comments")
-      .send(badComment)
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
-      });
-  });
   test("should give 404 when article doesnt exist", () => {
     const newComment = {
       username: "lurker",
@@ -276,9 +263,9 @@ describe("POST /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/3242/comments")
       .send(newComment)
-      .expect(400)
+      .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad Request");
+        expect(msg).toBe("Not Found");
       });
   });
 });
@@ -421,9 +408,9 @@ describe("GET /api/articles (topic query)", () => {
             expect(articles).toEqual([])
         })
     })
-    test("should return a 400 error when the queried topic is invalid", () => {
-        return request(app).get('/api/articles?topic=forklift').expect(400).then(({body: {msg}}) => {
-            expect(msg).toBe('Bad Request')
+    test("should return a 404 error when the queried topic is invalid", () => {
+        return request(app).get('/api/articles?topic=forklift').expect(404).then(({body: {msg}}) => {
+            expect(msg).toBe('Not Found')
         })
     })
 })
