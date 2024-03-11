@@ -28,6 +28,7 @@
     "pg-format": "^1.0.4"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.4",
     "express": "^4.18.2",
     "husky": "^9.0.11",
