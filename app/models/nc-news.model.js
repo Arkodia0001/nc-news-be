@@ -22,7 +22,7 @@ exports.selectArticles = (topics, query) => {
   let queryValues = [];
 
   if (query) {
-    stringQuery += " WHERE topic = $1";
+    stringQuery += ` WHERE topic = $1`;
     queryValues.push(query);
   }
 
