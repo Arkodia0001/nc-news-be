@@ -7,12 +7,12 @@ exports.selectTopics = () => {
   });
 };
 
-exports.selectArticles = (topics, topic) => {
+exports.selectArticles = (topics, query) => {
   const validTopics = topics.map((topic) => {
     return topic.slug;
   });
 
-  if (topic !== undefined && !validTopics.includes(topic)) {
+  if (query !== undefined && !validTopics.includes(query)) {
     return Promise.reject({ status: 404, msg: "Not Found" });
   }
 
@@ -21,9 +21,9 @@ exports.selectArticles = (topics, topic) => {
   LEFT JOIN comments ON articles.article_id = comments.article_id`;
   let queryValues = [];
 
-  if (topic) {
+  if (query) {
     stringQuery += " WHERE topic = $1";
-    queryValues.push(topic);
+    queryValues.push(query);
   }
 
   stringQuery += ` GROUP BY articles.article_id
