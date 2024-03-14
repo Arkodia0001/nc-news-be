@@ -65,7 +65,7 @@ exports.selectArticleById = (article_id) => {
 
 exports.selectCommentsByArticleID = (article_id) => {
   return db
-    .query("SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at", [
+    .query("SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC", [
       article_id,
     ])
     .then(({ rows }) => {
@@ -85,8 +85,7 @@ exports.insertNewComment = ({ article_id }, newComment) => {
       .then(({ rows }) => {
         return rows[0];
       });
-  }
-
+};
 
 exports.updateArticleByID = (update, article_id) => {
   let stringQuery = `UPDATE articles`;
