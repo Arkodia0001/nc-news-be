@@ -16,7 +16,7 @@ exports.selectArticles = (topics, topicQuery, sort_by = "created_at", order = "D
   if(!validSortBy.includes(sort_by)){
     return Promise.reject({status: 400, msg: "Bad Request"})
   }
- const validOrder = ["ASC", "DESC"]
+ const validOrder = ["asc", "desc", "DESC", "ASC"]
   if(!validOrder.includes(order)){
     return Promise.reject({status: 400, msg: "Bad Request"})
   }
@@ -36,7 +36,7 @@ exports.selectArticles = (topics, topicQuery, sort_by = "created_at", order = "D
     queryValues.push(topicQuery);
   }
 
-  stringQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`
+  stringQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order.toUpperCase()};`
 
   return db.query(stringQuery, queryValues).then(({ rows }) => {
     return rows;
