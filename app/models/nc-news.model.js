@@ -7,7 +7,7 @@ exports.selectTopics = () => {
   });
 };
 
-exports.selectArticles = (topics, topicQuery, sortBy, order) => {
+exports.selectArticles = (topics, topicQuery, sort_by, order) => {
   const validTopics = topics.map((topic) => {
     return topic.slug;
   });
@@ -27,8 +27,8 @@ exports.selectArticles = (topics, topicQuery, sortBy, order) => {
   }
   stringQuery += ` GROUP BY articles.article_id`
 
-  if(sortBy){
-    stringQuery += ` ORDER BY articles.${sortBy}`
+  if(sort_by){
+    stringQuery += ` ORDER BY articles.${sort_by}`
   } else { stringQuery += ` ORDER BY articles.created_at`}
   
   if(order){

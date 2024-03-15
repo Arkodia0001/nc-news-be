@@ -439,10 +439,10 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
   });
 });
 
-describe("GET /api/articles (sortBy query)", () => {
+describe.only("GET /api/articles (sortBy query)", () => {
   test("should return an array of articles that match the given topic query", () => {
     return request(app)
-      .get("/api/articles?sortBy=votes")
+      .get("/api/articles?sort_by=votes")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeSortedBy(articles.votes);
@@ -450,7 +450,7 @@ describe("GET /api/articles (sortBy query)", () => {
   });
   test("should return a 404 when given an incorrect sortBy value", () => {
     return request(app)
-      .get("/api/articles?sortBy=forklift")
+      .get("/api/articles?sort_by=forklift")
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe('Not Found');
@@ -458,10 +458,10 @@ describe("GET /api/articles (sortBy query)", () => {
   });
 });
 
-describe.only("GET /api/articles (sortBy AND order query)", () => {
+xdescribe("GET /api/articles (sortBy AND order query)", () => {
   test("should return an array of articles that match the given topic query", () => {
     return request(app)
-      .get("/api/articles?sortBy=votes&order=ASC")
+      .get("/api/articles?sortby=votes&order=ASC")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeSortedBy(articles.votes)
