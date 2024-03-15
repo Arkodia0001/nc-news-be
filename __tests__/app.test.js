@@ -451,9 +451,9 @@ describe.only("GET /api/articles (sortBy query)", () => {
   test("should return a 404 when given an incorrect sortBy value", () => {
     return request(app)
       .get("/api/articles?sort_by=forklift")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe('Not Found');
+        expect(msg).toBe('Bad Request');
       });
   });
 });
@@ -471,9 +471,9 @@ xdescribe("GET /api/articles (sortBy AND order query)", () => {
   test("should return a 404 when given an incorrect order value", () => {
     return request(app)
       .get("/api/articles?order=forklift")
-      .expect(404)
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe('Not Found');
+        expect(msg).toBe('Bad Request');
       });
   });
 });

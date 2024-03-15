@@ -7,10 +7,20 @@ exports.selectTopics = () => {
   });
 };
 
-exports.selectArticles = (topics, topicQuery, sort_by, order) => {
+exports.selectArticles = (topics, topicQuery, sort_by = "created_at", order = "DESC") => {
   const validTopics = topics.map((topic) => {
     return topic.slug;
   });
+
+  const validSortBy = ["created_at", "votes", "comment_count"]
+  if(!validSortBy.includes(sort_by)){
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
+ const validOrder = ["ASC", "DESC"]
+  if(!validOrder.includes(order)){
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }
+
 
   if (topicQuery !== undefined && !validTopics.includes(topicQuery)) {
     return Promise.reject({ status: 404, msg: "Not Found" });
@@ -20,21 +30,13 @@ exports.selectArticles = (topics, topicQuery, sort_by, order) => {
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id`;
   let queryValues = [];
-
+  
   if (topicQuery) {
     stringQuery += ` WHERE topic = $1`;
     queryValues.push(topicQuery);
   }
-  stringQuery += ` GROUP BY articles.article_id`
 
-  if(sort_by){
-    stringQuery += ` ORDER BY articles.${sort_by}`
-  } else { stringQuery += ` ORDER BY articles.created_at`}
-  
-  if(order){
-    stringQuery += ` ${order};`
-  } else { stringQuery += ` DESC;`}
-  
+  stringQuery += ` GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order};`
 
   return db.query(stringQuery, queryValues).then(({ rows }) => {
     return rows;
