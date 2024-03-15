@@ -7,12 +7,12 @@ exports.selectTopics = () => {
   });
 };
 
-exports.selectArticles = (topics, query) => {
+exports.selectArticles = (topics, topicQuery, sortBy, order) => {
   const validTopics = topics.map((topic) => {
     return topic.slug;
   });
 
-  if (query !== undefined && !validTopics.includes(query)) {
+  if (topicQuery !== undefined && !validTopics.includes(topicQuery)) {
     return Promise.reject({ status: 404, msg: "Not Found" });
   }
 
@@ -21,13 +21,20 @@ exports.selectArticles = (topics, query) => {
   LEFT JOIN comments ON articles.article_id = comments.article_id`;
   let queryValues = [];
 
-  if (query) {
+  if (topicQuery) {
     stringQuery += ` WHERE topic = $1`;
-    queryValues.push(query);
+    queryValues.push(topicQuery);
   }
+  stringQuery += ` GROUP BY articles.article_id`
 
-  stringQuery += ` GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC;`;
+  if(sortBy){
+    stringQuery += ` ORDER BY articles.${sortBy}`
+  } else { stringQuery += ` ORDER BY articles.created_at`}
+  
+  if(order){
+    stringQuery += ` ${order};`
+  } else { stringQuery += ` DESC;`}
+  
 
   return db.query(stringQuery, queryValues).then(({ rows }) => {
     return rows;

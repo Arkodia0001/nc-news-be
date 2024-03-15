@@ -25,10 +25,10 @@ exports.getEndpoints = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    const {topic} = req.query
+    const {topic, sortBy, order} = req.query
     selectTopics()
     .then((topics) => {
-    return selectArticles(topics, topic)
+    return selectArticles(topics, topic, sortBy, order)
     })
     .then((articles) => {
       res.status(200).send({ articles });
