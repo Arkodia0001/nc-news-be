@@ -36,7 +36,7 @@ exports.selectArticles = (topics, topicQuery, sort_by = "created_at", order = "D
     queryValues.push(topicQuery);
   }
 
-  stringQuery += ` GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order};`
+  stringQuery += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`
 
   return db.query(stringQuery, queryValues).then(({ rows }) => {
     return rows;

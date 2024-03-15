@@ -439,7 +439,7 @@ describe("GET /api/articles/:article_id (comment_count)", () => {
   });
 });
 
-describe.only("GET /api/articles (sortBy query)", () => {
+describe("GET /api/articles (sortBy query)", () => {
   test("should return an array of articles that match the given topic query", () => {
     return request(app)
       .get("/api/articles?sort_by=votes")
@@ -458,7 +458,7 @@ describe.only("GET /api/articles (sortBy query)", () => {
   });
 });
 
-xdescribe("GET /api/articles (sortBy AND order query)", () => {
+describe("GET /api/articles (sortBy AND order query)", () => {
   test("should return an array of articles that match the given topic query", () => {
     return request(app)
       .get("/api/articles?sortby=votes&order=ASC")
