@@ -162,7 +162,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body: { comments } }) => {
-        expect(comments).toBeSortedBy("created_at", { descending: false });
+        expect(comments).toBeSortedBy("created_at", { descending: true });
       });
   });
   test("should return 200 code and an empty array when there is an article present with no comments", () => {
