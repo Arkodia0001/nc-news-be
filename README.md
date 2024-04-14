@@ -22,7 +22,7 @@ PostgreSQL 14.11 (Homebrew)
 #### Clone the project
 
 ```bash
-  git clone https://github.com/Arkodia0001/nc-news.git
+  git clone https://github.com/Arkodia0001/be-nc-news.git
 ```
 
 #### Go to the project directory
