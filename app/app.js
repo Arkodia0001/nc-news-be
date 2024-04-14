@@ -10,6 +10,7 @@ const {
     patchArticle,
     sendDeleteRequest,
     getUsers,
+    patchComment,
 } = require("./controllers/nc-news.controller");
 const {
     pathNotFound,
@@ -32,6 +33,7 @@ app.post("/api/articles/:article_id/comments", postCommentByArticleID);
 app.patch("/api/articles/:article_id", patchArticle);
 app.delete("/api/comments/:comment_id", sendDeleteRequest);
 app.get("/api/users", getUsers)
+app.patch("/api/comments/:comment_id", patchComment)
 
 app.all("/*", pathNotFound);
 app.use(customError);

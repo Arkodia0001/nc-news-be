@@ -477,3 +477,64 @@ describe("GET /api/articles (sortBy AND order query)", () => {
       });
   });
 });
+
+describe("PATCH /api/comments/:comment_id (upvote/downvote)", () => {
+  test("should return status 200 and update the comment with only the information requested", () => {
+    const patchInfo = {inc_votes: 100}
+    const testComment = {
+      article_id: 9,
+      author: "butter_bridge",
+      body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+      comment_id: 1,
+      created_at: "2020-04-06T12:17:00.000Z",
+      votes: 116,
+    }
+    return request(app)
+    .patch("/api/comments/1")
+    .send(patchInfo)
+    .expect(200)
+    .then(({body: {patchedComment}}) => {
+      expect(patchedComment).toEqual(testComment)
+    })
+  })
+  test("should return 200 code and update a comment with minus inputs", () => {
+    const patchInfo = { inc_votes: -10 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patchInfo)
+      .expect(200)
+      .then(({ body: { patchedComment } }) => {
+        expect(patchedComment.votes).toEqual(6);
+      });
+  });
+  test("should give 400 bad request error when patchInfo includes something other than updating votes", () => {
+    const patchInfo = { topic: "cats" };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patchInfo)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should give 400 bad request error when patchInfo includes votes, but the data type is incorrect", () => {
+    const patchInfo = { inc_votes: "i love forklifts me" };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(patchInfo)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad Request");
+      });
+  });
+  test("should give 404 not found when given an invalid comment_id", () => {
+    const patchInfo = { inc_votes: 100 };
+    return request(app)
+      .patch("/api/comments/99999")
+      .send(patchInfo)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Comment Not Found");
+      });
+  });
+})

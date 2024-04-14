@@ -7,6 +7,7 @@ const {
   updateArticleByID,
   deleteCommentByID,
   selectUsers,
+  updateCommentByID,
 } = require("../models/nc-news.model");
 const endpoints = require("../../endpoints.json");
 
@@ -104,4 +105,16 @@ exports.getUsers = (req, res, next) => {
     }).catch((error) => {
         next(error)
     })
+}
+
+exports.patchComment = (req, res, next) => {
+  const update = req.body;
+  const { comment_id } = req.params;
+  updateCommentByID(update, comment_id)
+    .then((patchedComment) => {
+      res.status(200).send({ patchedComment });
+    })
+    .catch((error) => {
+      next(error);
+    });
 }

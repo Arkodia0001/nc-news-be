@@ -137,3 +137,27 @@ exports.selectUsers = () => {
     return rows;
   });
 };
+
+exports.updateCommentByID = (update, comment_id) => {
+  let stringQuery = `UPDATE comments`;
+  const validPatchData = ["inc_votes"];
+  const values = [];
+
+  for (const key in update) {
+    if (!validPatchData.includes(key)) {
+      return Promise.reject({ status: 400, msg: "Bad Request" });
+    } else {
+      stringQuery += ` SET votes = votes + $1`;
+      values.push(update[key]);
+    }
+  }
+  values.push(comment_id);
+  stringQuery += ` WHERE comment_id = $2 RETURNING *`;
+
+  return db.query(stringQuery, values).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Comment Not Found" });
+    }
+    return rows[0];
+  });
+};
